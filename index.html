@@ -1,1 +1,50 @@
+<!DOCTYPE html>
+<html>
 
+<head>
+  <title>彈跳的球</title>
+</head>
+
+<body>
+  <canvas id="myCanvas" width="600" height="400"></canvas>
+  <script>
+    // 設定球的半徑和初始位置
+    var radius = 20;
+    var x = radius + Math.random() * (600 - radius * 2);
+    var y = radius + Math.random() * (400 - radius * 2);
+    // 設定球的速度和方向
+    var vx = Math.random() * 10 - 5;
+    var vy = Math.random() * 10 - 5;
+    // 取得 canvas 元素
+    var canvas = document.getElementById("myCanvas");
+    var ctx = canvas.getContext("2d");
+    // 設定球的顏色
+    var color = "#FF0000";
+
+    function drawBall() {
+      // 清除 canvas 並繪製圆形
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      ctx.arc(x, y, radius, 0, Math.PI * 2);
+      ctx.fillStyle = color;
+      ctx.fill();
+      
+      // 實現彈跳
+      if (x + radius > canvas.width || x - radius < 0) {
+        vx = -vx;
+      }
+      if (y + radius > canvas.height || y - radius < 0) {
+        vy = -vy;
+      }
+      x += vx;
+      y += vy;
+
+      // 延遲一段時間再執行函數
+      setTimeout(drawBall, 10);
+    }
+
+    drawBall();
+  </script>
+</body>
+
+</html>
