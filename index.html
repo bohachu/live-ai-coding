@@ -3,56 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>彩色球跳動</title>
+    <title>彩球跳跳</title>
     <style>
         body {
             margin: 0;
-            overflow: hidden;
+            user-select: none;
         }
+
         canvas {
             display: block;
         }
     </style>
 </head>
 <body>
-    <canvas></canvas>
+    <canvas id="canvas"></canvas>
+
     <script>
-        const canvas = document.querySelector('canvas');
+        const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        canvas.width = innerWidth;
-        canvas.height = innerHeight;
-
-        class Ball {
-            constructor(x, y, dx, dy, radius, color) {
-                this.x = x;
-                this.y = y;
-                this.dx = dx;
-                this.dy = dy;
-                this.radius = radius;
-                this.color = color;
+        let balls = [
+            {
+                x: Math.random() * canvas.width,
+                y: Math.random() * canvas.height,
+                vx: Math.random() * 2 - 1,
+                vy: Math.random() * 2 - 1,
+                r: 20,
+                color: 'blue'
             }
+        ];
 
-            draw() {
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2, false);
-                ctx.fillStyle = this.color;
-                ctx.fill();
-                ctx.closePath();
-            }
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
 
-            update() {
-                if (this.x + this.radius > innerWidth || this.x - this.radius < 0) {
-                    this.dx = -this.dx;
+        function drawBall(ball) {
+            ctx.fillStyle = ball.color;
+            ctx.beginPath();
+            ctx.arc(ball.x, ball.y, ball.r, 0, 2 * Math.PI);
+            ctx.fill();
+        }
+
+        function drawText() {
+            ctx.font = '40px Arial';
+            ctx.fillStyle = 'white';
+            ctx.textAlign = 'center';
+            ctx.fillText('🐲與🥑的AI時光', canvas.width / 2, canvas.height / 2);
+        }
+
+        function update() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            for (let ball of balls) {
+                ball.x += ball.vx;
+                ball.y += ball.vy;
+
+                if (ball.x < ball.r || ball.x > canvas.width - ball.r) {
+                    ball.vx = -ball.vx;
                 }
 
-                if (this.y + this.radius > innerHeight || this.y - this.radius < 0) {
-                    this.dy = -this.dy;
+                if (ball.y < ball.r || ball.y > canvas.height - ball.r) {
+                    ball.vy = -ball.vy;
                 }
 
-                this.x += this.dx;
-                this.y += this.dy;
-                this.draw();
+                drawBall(ball);
             }
+
+            drawText();
+
+            requestAnimationFrame(update);
         }
 
         function randomColor() {
@@ -62,25 +81,28 @@
             return `rgb(${r}, ${g}, ${b})`;
         }
 
-        const balls = [new Ball(canvas.width / 2, canvas.height / 2, 2, 2, 30, 'blue')];
-
-        function animate() {
-            requestAnimationFrame(animate);
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            balls.forEach(ball => ball.update());
+        function changeBackgroundColor() {
+            document.body.style.backgroundColor = randomColor();
         }
 
-        animate();
+        function addBall(event) {
+            const x = event.clientX;
+            const y = event.clientY;
+            balls.push({
+                x: x,
+                y: y,
+                vx: Math.random() * 2 - 1,
+                vy: Math.random() * 2 - 1,
+                r: 20,
+                color: randomColor()
+            });
+        }
 
-        canvas.addEventListener('click', (e) => {
-            const x = e.clientX;
-            const y = e.clientY;
-            const dx = Math.random() * 4 - 2;
-            const dy = Math.random() * 4 - 2;
-            const radius = Math.random() * 20 + 10;
-            const color = randomColor();
-            balls.push(new Ball(x, y, dx, dy, radius, color));
-        });
+        window.addEventListener('resize', resizeCanvas);
+        canvas.addEventListener('click', addBall);
+        resizeCanvas();
+        update();
+        setInterval(changeBackgroundColor, 3000);
     </script>
 </body>
 </html>
